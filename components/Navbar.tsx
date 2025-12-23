@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 
 const navItems = [
-  { name: "Dashboard", href: "/" },
+  { name: "Dashboard", href: "/dashboard" },
   { name: "Add Tasks", href: "/add-tasks" },
   { name: "Calendar", href: "/calendar" },
   { name: "Profile", href: "/profile" },
@@ -25,9 +25,12 @@ export default function Navbar() {
     >
       {/* App Title */}
       <div className="flex items-center mr-12">
-        <h1 className="text-xl font-bold text-black dark:text-white">
+        <Link
+          href="/"
+          className="text-xl font-bold text-black dark:text-white cursor-pointer hover:opacity-80 transition"
+        >
           Student Reminder
-        </h1>
+        </Link>
       </div>
 
       {/* Navigation Buttons */}

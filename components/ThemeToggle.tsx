@@ -28,6 +28,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
+      aria-label="Toggle dark mode"
       className="flex items-center gap-2
       px-4 py-2
       rounded-full
