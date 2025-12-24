@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabaseClient";
+import LoggedInProfile from "../../components/Profile/LoggedInProfile";
 
 export default function ProfilePage() {
   const [status, setStatus] = useState<"loading" | "logged-in" | "logged-out">(
@@ -11,6 +12,8 @@ export default function ProfilePage() {
   const [email, setEmail] = useState<string | null>(null);
   const router = useRouter();
 
+  const [joinedAt, setJoinedAt] = useState<string | null>(null);
+
   useEffect(() => {
     const checkUser = async () => {
       try {
@@ -18,6 +21,7 @@ export default function ProfilePage() {
 
         if (data.user) {
           setEmail(data.user.email);
+          setJoinedAt(data.user.created_at);
           setStatus("logged-in");
         } else {
           setStatus("logged-out");
@@ -69,20 +73,16 @@ export default function ProfilePage() {
       {/* Logged IN view */}
       {status === "logged-in" && (
         <>
-          <p className="mt-4 italic text-gray-700 dark:text-gray-400">
-            Logged in as <strong>{email}</strong>
-          </p>
-
-          <button
-            onClick={async () => {
+          <LoggedInProfile
+            email={email}
+            joinedAt={joinedAt}
+            onLogout={async () => {
               await supabase.auth.signOut();
               setStatus("logged-out");
               setEmail(null);
+              setJoinedAt(null);
             }}
-            className="mt-6 px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white"
-          >
-            Logout
-          </button>
+          />
         </>
       )}
     </main>
