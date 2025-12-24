@@ -52,7 +52,7 @@ export default function AuthForm() {
             if (error) alert(error.message);
             else location.reload();
           }}
-          className="px-4 py-2 bg-blue-600 text-white rounded"
+          className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded "
         >
           Sign In
         </button>
@@ -63,7 +63,7 @@ export default function AuthForm() {
             if (error) alert(error.message);
             else alert("Signup successful. Please sign in.");
           }}
-          className="px-4 py-2 bg-green-600 text-white rounded"
+          className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded pointer-events-auto"
         >
           Sign Up
         </button>

@@ -49,7 +49,7 @@ export default function LoggedInProfile({ email, joinedAt, onLogout }: Props) {
       <div className="mt-8 flex justify-center">
         <button
           onClick={onLogout}
-          className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white"
+          className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white cursor-pointer"
         >
           Logout
         </button>
