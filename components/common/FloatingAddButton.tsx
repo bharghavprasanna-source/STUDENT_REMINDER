@@ -13,7 +13,7 @@ export default function FloatingAddButton() {
         h-14 w-14 rounded-full
         bg-blue-600 hover:bg-blue-700
         text-white text-3xl
-        flex items-center justify-center
+        pb-1.5
         shadow-lg
         cursor-pointer
         transition-all duration-200
@@ -21,7 +21,7 @@ export default function FloatingAddButton() {
       "
       aria-label="Add Task"
     >
-      <span className="text-4xl font-light leading-none ">+</span>
+      +
     </button>
   );
 }
