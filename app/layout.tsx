@@ -1,5 +1,6 @@
 import "./globals.css";
 import Navbar from "../components/Navbar";
+import FloatingAddButton from "../components/common/FloatingAddButton";
 
 export const metadata = {
   title: "Student Reminder App",
@@ -16,6 +17,7 @@ export default function RootLayout({
       <body>
         <Navbar />
         {children}
+        <FloatingAddButton />
       </body>
     </html>
   );
