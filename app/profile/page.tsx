@@ -1,100 +1,90 @@
 "use client";
 
-import { useState } from "react";
-import { signIn, signUp } from "../../lib/auth";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function ProfilePage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<"loading" | "logged-in" | "logged-out">(
+    "loading"
+  );
+  const [email, setEmail] = useState<string | null>(null);
+  const router = useRouter();
 
-  const handleSignIn = async () => {
-    setLoading(true);
-    const { error } = await signIn(email, password);
-    setLoading(false);
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
 
-    if (error) {
-      alert(error.message);
-    }
-  };
+        if (data.user) {
+          setEmail(data.user.email);
+          setStatus("logged-in");
+        } else {
+          setStatus("logged-out");
+        }
+      } catch {
+        setStatus("logged-out");
+      }
+    };
 
-  const handleSignUp = async () => {
-    setLoading(true);
-    const { error } = await signUp(email, password);
-    setLoading(false);
+    checkUser();
+  }, []);
 
-    if (error) {
-      alert(error.message);
-    } else {
-      alert("Signup successful! You can now sign in.");
-    }
-  };
   return (
     <main className="p-6 min-h-screen bg-white dark:bg-gray-900">
-      <h1 className="text-2xl font-bold text-black dark:text-white">Welcome</h1>
+      <h1 className="text-2xl font-bold text-black dark:text-white">Profile</h1>
 
-      <p className="mt-4 italic text-gray-700 dark:text-gray-400">
-        Sign in or create a new account to continue.
-      </p>
+      {/* Loading */}
+      {status === "loading" && (
+        <p className="mt-4 italic text-gray-700 dark:text-gray-400">
+          Checking authentication…
+        </p>
+      )}
 
-      {/* Email */}
-      <input
-        type="email"
-        placeholder="Email"
-        className="
-          block mt-6 w-80 p-2
-          border border-gray-300 dark:border-gray-700
-          bg-white dark:bg-gray-800
-          text-black dark:text-white
-          rounded
-        "
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+      {/* Logged OUT view */}
+      {status === "logged-out" && (
+        <>
+          <p className="mt-4 italic text-gray-700 dark:text-gray-400">
+            Welcome! Please sign in or create an account.
+          </p>
 
-      {/* Password */}
-      <input
-        type="password"
-        placeholder="Password"
-        className="
-          block mt-4 w-80 p-2
-          border border-gray-300 dark:border-gray-700
-          bg-white dark:bg-gray-800
-          text-black dark:text-white
-          rounded
-        "
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+          <div className="mt-6 flex gap-4">
+            <button
+              onClick={() => router.push("/profile/signin")}
+              className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Sign In
+            </button>
 
-      {/* Buttons */}
-      <div className="mt-6 flex gap-4">
-        <button
-          onClick={handleSignIn}
-          disabled={loading}
-          className="
-            px-4 py-2 rounded
-            bg-blue-600 hover:bg-blue-700
-            text-white
-            disabled:opacity-50
-          "
-        >
-          Sign In
-        </button>
+            <button
+              onClick={() => router.push("/profile/signup")}
+              className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white"
+            >
+              Sign Up
+            </button>
+          </div>
+        </>
+      )}
 
-        <button
-          onClick={handleSignUp}
-          disabled={loading}
-          className="
-            px-4 py-2 rounded
-            bg-green-600 hover:bg-green-700
-            text-white
-            disabled:opacity-50
-          "
-        >
-          Sign Up
-        </button>
-      </div>
+      {/* Logged IN view */}
+      {status === "logged-in" && (
+        <>
+          <p className="mt-4 italic text-gray-700 dark:text-gray-400">
+            Logged in as <strong>{email}</strong>
+          </p>
+
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              setStatus("logged-out");
+              setEmail(null);
+            }}
+            className="mt-6 px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white"
+          >
+            Logout
+          </button>
+        </>
+      )}
     </main>
   );
 }

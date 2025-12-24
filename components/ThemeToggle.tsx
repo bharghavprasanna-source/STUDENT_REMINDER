@@ -3,43 +3,50 @@
 import { useEffect, useState } from "react";
 
 export default function ThemeToggle() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [isDark, setIsDark] = useState(false);
 
+  // Load theme on first render
   useEffect(() => {
-    const theme = localStorage.getItem("theme");
-    if (theme === "dark") {
+    const storedTheme = localStorage.getItem("theme");
+
+    if (storedTheme === "dark") {
       document.documentElement.classList.add("dark");
-      setDarkMode(true);
+      setIsDark(true);
+    } else {
+      document.documentElement.classList.remove("dark");
+      setIsDark(false);
     }
   }, []);
 
   const toggleTheme = () => {
-    if (darkMode) {
+    if (document.documentElement.classList.contains("dark")) {
       document.documentElement.classList.remove("dark");
       localStorage.setItem("theme", "light");
-      setDarkMode(false);
+      setIsDark(false);
     } else {
       document.documentElement.classList.add("dark");
       localStorage.setItem("theme", "dark");
-      setDarkMode(true);
+      setIsDark(true);
     }
   };
 
   return (
     <button
       onClick={toggleTheme}
-      aria-label="Toggle dark mode"
-      className="flex items-center gap-2
-      px-4 py-2
-      rounded-full
-      border border-gray-300 dark:border-gray-600
-      bg-gray-100 dark:bg-gray-800
-      text-sm font-medium
-      hover:bg-gray-200 dark:hover:bg-gray-700
-      transition-transform duration-300 cursor-pointer hover:scale-105 active:scale-95 hover:shadow-md pointer-events-auto"
+      aria-label="Toggle theme"
+      className="
+        flex items-center gap-2
+        px-4 py-2 rounded-full
+        border border-gray-300 dark:border-gray-600
+        bg-gray-100 dark:bg-gray-800
+        text-black dark:text-white
+        cursor-pointer
+        transition-all duration-300
+        hover:scale-105 active:scale-95
+      "
     >
-      <span className="text-lg">{darkMode ? "☀️" : "🌙"}</span>
-      <span>{darkMode ? "Light" : "Dark"}</span>
+      <span className="text-lg">{isDark ? "☀️" : "🌙"}</span>
+      <span className="text-sm">{isDark ? "Light" : "Dark"}</span>
     </button>
   );
 }
