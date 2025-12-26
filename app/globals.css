@@ -34,3 +34,14 @@ body {
 .dark .react-calendar__navigation button {
   color: white;
 }
+/* Highlight dates with tasks */
+.task-date {
+  background: #2563eb !important; /* blue-600 */
+  color: white !important;
+  border-radius: 50%;
+}
+
+/* Dark mode support */
+.dark .task-date {
+  background: #3b82f6 !important; /* blue-500 */
+}

@@ -1,6 +1,7 @@
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import FloatingAddButton from "../components/common/FloatingAddButton";
+import { TaskProvider } from "../context/TaskContext";
 
 export const metadata = {
   title: "Student Reminder App",
@@ -16,7 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Navbar />
-        {children}
+        <TaskProvider>{children}</TaskProvider>
         <FloatingAddButton />
       </body>
     </html>

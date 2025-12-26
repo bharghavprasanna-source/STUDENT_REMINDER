@@ -2,68 +2,19 @@
 
 import { useState } from "react";
 import AddTaskModal from "../../components/tasks/AddTaskModal";
-
-type Task = {
-  id: number;
-  title: string;
-  deadline: string;
-  type: string;
-  completed: boolean;
-};
-
-const initialTasks: Task[] = [
-  {
-    id: 1,
-    title: "Assignment 1",
-    deadline: "2026-01-05",
-    type: "assignment",
-    completed: false,
-  },
-  {
-    id: 2,
-    title: "Lab Record Submission",
-    deadline: "2026-01-10",
-    type: "exam",
-    completed: false,
-  },
-];
+import { useTasks } from "../../context/TaskContext";
 
 export default function AddTasksPage() {
-  /* -------------------- STATE -------------------- */
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  /* -------------------- GLOBAL TASK CONTEXT -------------------- */
+  const { tasks, addTask, removeTask, completeTask } = useTasks();
+
+  /* -------------------- LOCAL UI STATE -------------------- */
   const [showModal, setShowModal] = useState(false);
 
   /* -------------------- SORT -------------------- */
   const sortedTasks = [...tasks].sort(
     (a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
   );
-
-  /* -------------------- ADD TASK -------------------- */
-  const addTask = (task: { title: string; deadline: string; type: string }) => {
-    setTasks((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        title: task.title,
-        deadline: task.deadline,
-        type: task.type,
-        completed: false,
-      },
-    ]);
-  };
-
-  /* -------------------- COMPLETE TASK -------------------- */
-  const completeTask = (id: number) => {
-    // animate strike
-    setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, completed: true } : task))
-    );
-
-    // remove after animation
-    setTimeout(() => {
-      setTasks((prev) => prev.filter((task) => task.id !== id));
-    }, 350);
-  };
 
   /* -------------------- UI -------------------- */
   return (
@@ -99,6 +50,7 @@ export default function AddTasksPage() {
               ${task.completed ? "opacity-60 scale-95" : ""}
             `}
           >
+            {/* Task info */}
             <div>
               <p
                 className={`
@@ -118,13 +70,32 @@ export default function AddTasksPage() {
               </p>
             </div>
 
-            {/* Tickbox */}
-            <input
-              type="checkbox"
-              checked={task.completed}
-              onChange={() => completeTask(task.id)}
-              className="h-5 w-5 cursor-pointer"
-            />
+            {/* Right-side controls */}
+            <div className="flex items-center gap-3">
+              {/* Tickbox */}
+              <input
+                type="checkbox"
+                checked={task.completed}
+                onChange={() => completeTask(task.id)}
+                className="h-5 w-5 cursor-pointer"
+                aria-label="Mark task completed"
+              />
+
+              {/* Minus button */}
+              <button
+                onClick={() => removeTask(task.id)}
+                className="
+                  h-6 w-6 flex items-center justify-center
+                  rounded-full
+                  bg-red-100 hover:bg-red-200
+                  text-red-600 font-bold
+                  cursor-pointer
+                "
+                aria-label="Remove task"
+              >
+                −
+              </button>
+            </div>
           </div>
         ))}
       </div>
