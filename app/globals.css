@@ -15,3 +15,22 @@ body {
   transition: background-color 0.3s ease;
 }
 
+/* Calendar dark mode support */
+.dark .react-calendar {
+  background-color: #111827;
+  color: white;
+  border-radius: 8px;
+}
+
+.dark .react-calendar__tile {
+  color: white;
+}
+
+.dark .react-calendar__tile--active {
+  background: #2563eb;
+  color: white;
+}
+
+.dark .react-calendar__navigation button {
+  color: white;
+}
