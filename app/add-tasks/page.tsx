@@ -16,7 +16,6 @@ export default function AddTasksPage() {
     (a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
   );
 
-  /* -------------------- UI -------------------- */
   return (
     <main className="p-6 min-h-screen bg-white dark:bg-gray-900">
       {/* Header */}
@@ -39,65 +38,57 @@ export default function AddTasksPage() {
 
       {/* Task List */}
       <div className="mt-6 space-y-4">
-        {sortedTasks.map((task) => (
-          <div
-            key={task.id}
-            className={`
-              flex items-center justify-between
-              p-4 rounded-lg
-              bg-gray-100 dark:bg-gray-800
-              transition-all duration-300
-              ${task.completed ? "opacity-60 scale-95" : ""}
-            `}
-          >
-            {/* Task info */}
-            <div>
-              <p
-                className={`
-                  font-semibold transition-all duration-300
-                  ${
-                    task.completed
-                      ? "line-through text-gray-500 dark:text-gray-400"
-                      : "text-black dark:text-white"
-                  }
-                `}
-              >
-                {task.title}
-              </p>
+        {sortedTasks
+          .filter((task) => !task.completed) // ✅ KEY FIX
+          .map((task) => (
+            <div
+              key={task.id}
+              className="
+                flex items-center justify-between
+                p-4 rounded-lg
+                bg-gray-100 dark:bg-gray-800
+                transition-all duration-300
+              "
+            >
+              {/* Task info */}
+              <div>
+                <p className="font-semibold text-black dark:text-white">
+                  {task.title}
+                </p>
 
-              <p className="mt-1 italic text-sm text-gray-700 dark:text-gray-400">
-                {new Date(task.deadline).toDateString()} • {task.type}
-              </p>
+                <p className="mt-1 italic text-sm text-gray-700 dark:text-gray-400">
+                  {new Date(task.deadline).toDateString()} • {task.type}
+                </p>
+              </div>
+
+              {/* Right-side controls */}
+              <div className="flex items-center gap-3">
+                {/* Tickbox */}
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => completeTask(task.id)}
+                  className="h-5 w-5 cursor-pointer"
+                  aria-label="Mark task completed"
+                />
+
+                {/* Minus button */}
+                <button
+                  onClick={() => removeTask(task.id)}
+                  className="
+                    h-6 w-6 flex items-center justify-center
+                    rounded-full
+                    bg-red-100 hover:bg-red-200
+                    text-red-600 font-bold
+                    cursor-pointer
+                  "
+                  aria-label="Remove task"
+                >
+                  −
+                </button>
+              </div>
             </div>
-
-            {/* Right-side controls */}
-            <div className="flex items-center gap-3">
-              {/* Tickbox */}
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => completeTask(task.id)}
-                className="h-5 w-5 cursor-pointer"
-                aria-label="Mark task completed"
-              />
-
-              {/* Minus button */}
-              <button
-                onClick={() => removeTask(task.id)}
-                className="
-                  h-6 w-6 flex items-center justify-center
-                  rounded-full
-                  bg-red-100 hover:bg-red-200
-                  text-red-600 font-bold
-                  cursor-pointer
-                "
-                aria-label="Remove task"
-              >
-                −
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {/* Modal */}
