@@ -40,28 +40,56 @@ export default function CalendarPage() {
       </p>
 
       {/* Calendar */}
-      <div className="mt-6 max-w-md">
-        {value && (
-          <Calendar
-            value={value}
-            onChange={(val) => setValue(val as Date)}
-            tileClassName={({ date, view }) => {
-              if (view !== "month") return null;
+      <div className="mt-6 flex flex-col md:flex-row gap-6">
+        {/* Calendar */}
+        <div className="max-w-md">
+          {value && (
+            <Calendar
+              value={value}
+              onChange={(val) => setValue(val as Date)}
+              tileClassName={({ date, view }) => {
+                if (view !== "month") return null;
 
-              const dateStr = formatDate(date);
+                const dateStr = formatDate(date);
+                const taskForDay = tasks.find(
+                  (task) => task.deadline === dateStr
+                );
 
-              // Find a task for this date (if any)
-              const taskForDay = tasks.find(
-                (task) => task.deadline === dateStr
-              );
+                return taskForDay
+                  ? `task-date ${getTaskColorClasses(taskForDay.type)}`
+                  : null;
+              }}
+            />
+          )}
+        </div>
 
-              // Apply task-type color to tile
-              return taskForDay
-                ? `task-date ${getTaskColorClasses(taskForDay.type)}`
-                : null;
-            }}
-          />
-        )}
+        {/* Legend */}
+        <div className="flex-1">
+          <h3 className="text-lg font-semibold text-black dark:text-white">
+            Task Types
+          </h3>
+
+          <ul className="mt-4 space-y-3">
+            <LegendItem
+              label="Assignment"
+              colorClass={getTaskColorClasses("assignment")}
+            />
+            <LegendItem label="Test" colorClass={getTaskColorClasses("test")} />
+            <LegendItem label="Exam" colorClass={getTaskColorClasses("exam")} />
+            <LegendItem
+              label="Event"
+              colorClass={getTaskColorClasses("event")}
+            />
+            <LegendItem
+              label="Hackathon"
+              colorClass={getTaskColorClasses("hackathon")}
+            />
+            <LegendItem
+              label="Other"
+              colorClass={getTaskColorClasses("other")}
+            />
+          </ul>
+        </div>
       </div>
 
       {/* Tasks for selected date */}
@@ -115,5 +143,24 @@ export default function CalendarPage() {
         </span>
       </p>
     </main>
+  );
+}
+function LegendItem({
+  label,
+  colorClass,
+}: {
+  label: string;
+  colorClass: string;
+}) {
+  return (
+    <li className="flex items-center gap-3">
+      <span
+        className={`
+          h-4 w-4 rounded-full
+          ${colorClass}
+        `}
+      />
+      <span className="italic text-gray-700 dark:text-gray-400">{label}</span>
+    </li>
   );
 }

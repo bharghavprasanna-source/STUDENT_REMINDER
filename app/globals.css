@@ -45,3 +45,51 @@ body {
 .dark .task-date {
   background: #3b82f6 !important; /* blue-500 */
 }
+
+/* Base calendar tile override */
+.react-calendar__tile.task-date {
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+
+/* Assignment */
+.react-calendar__tile.task-date.bg-blue-100,
+.dark .react-calendar__tile.task-date.bg-blue-900 {
+  background-color: #3b82f6 !important;
+  color: white !important;
+}
+
+/* Test */
+.react-calendar__tile.task-date.bg-yellow-100,
+.dark .react-calendar__tile.task-date.bg-yellow-900 {
+  background-color: #f59e0b !important;
+  color: black !important;
+}
+
+/* Exam */
+.react-calendar__tile.task-date.bg-red-100,
+.dark .react-calendar__tile.task-date.bg-red-900 {
+  background-color: #ef4444 !important;
+  color: white !important;
+}
+
+/* Event */
+.react-calendar__tile.task-date.bg-green-100,
+.dark .react-calendar__tile.task-date.bg-green-900 {
+  background-color: #10b981 !important;
+  color: white !important;
+}
+
+/* Hackathon */
+.react-calendar__tile.task-date.bg-purple-100,
+.dark .react-calendar__tile.task-date.bg-purple-900 {
+  background-color: #8b5cf6 !important;
+  color: white !important;
+}
+
+/* Other */
+.react-calendar__tile.task-date.bg-gray-100,
+.dark .react-calendar__tile.task-date.bg-gray-800 {
+  background-color: #9ca3af !important;
+  color: black !important;
+}
