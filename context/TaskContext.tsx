@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 export type Task = {
   id: number;
@@ -21,6 +21,19 @@ const TaskContext = createContext<TaskContextType | null>(null);
 
 export function TaskProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
+
+  // 🔹 Load from localStorage (on first load)
+  useEffect(() => {
+    const storedTasks = localStorage.getItem("tasks");
+    if (storedTasks) {
+      setTasks(JSON.parse(storedTasks));
+    }
+  }, []);
+
+  // 🔹 Save to localStorage (on every change)
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   const addTask = (task: Omit<Task, "id" | "completed">) => {
     setTasks((prev) => [
