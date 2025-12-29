@@ -93,3 +93,40 @@ body {
   background-color: #9ca3af !important;
   color: black !important;
 }
+
+
+/* ---------- Overdue Assignment (Dark Red Blink) ---------- */
+/* ================= OVERDUE ASSIGNMENT (DARK RED) ================= */
+@keyframes overdueBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.react-calendar__tile.overdue-assignment {
+  background-color: #7f1d1d !important; /* DARK RED */
+  color: #ffffff !important;
+  animation: overdueBlink 1.2s infinite;
+  border-radius: 50%;
+}
+
+.react-calendar__tile.overdue-assignment abbr {
+  color: #ffffff !important;
+  font-weight: bold;
+}
+
+/* ================= TODAY (SKY BLUE) ================= */
+.react-calendar__tile.today-highlight {
+  background-color: #38bdf8 !important; /* SKY BLUE */
+  color: #0f172a !important;
+  border-radius: 50%;
+}
+
+.react-calendar__tile.today-highlight abbr {
+  font-weight: bold;
+}
+

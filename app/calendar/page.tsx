@@ -15,7 +15,7 @@ export default function CalendarPage() {
     setValue(new Date());
   }, []);
 
-  // Local-safe date formatter (NO timezone issues)
+  // Local-safe date formatter
   const formatDate = (date: Date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -23,6 +23,7 @@ export default function CalendarPage() {
     return `${year}-${month}-${day}`;
   };
 
+  const todayStr = formatDate(new Date());
   const selectedDateStr = value ? formatDate(value) : null;
 
   const tasksForSelectedDate = selectedDateStr
@@ -39,7 +40,7 @@ export default function CalendarPage() {
         Tasks update live based on deadlines
       </p>
 
-      {/* Calendar */}
+      {/* Calendar + Legend */}
       <div className="mt-6 flex flex-col md:flex-row gap-6">
         {/* Calendar */}
         <div className="max-w-md">
@@ -51,13 +52,31 @@ export default function CalendarPage() {
                 if (view !== "month") return null;
 
                 const dateStr = formatDate(date);
+
                 const taskForDay = tasks.find(
-                  (task) => task.deadline === dateStr
+                  (task) => task.deadline === dateStr && !task.completed
                 );
 
-                return taskForDay
-                  ? `task-date ${getTaskColorClasses(taskForDay.type)}`
-                  : null;
+                /* 1️⃣ Overdue assignment (highest priority) */
+                if (
+                  taskForDay &&
+                  taskForDay.type === "assignment" &&
+                  todayStr > taskForDay.deadline
+                ) {
+                  return "overdue-assignment";
+                }
+
+                /* 2️⃣ Today highlight (even if no task) */
+                if (dateStr === todayStr) {
+                  return "today-highlight";
+                }
+
+                /* 3️⃣ Normal task color */
+                if (taskForDay) {
+                  return `task-date ${getTaskColorClasses(taskForDay.type)}`;
+                }
+
+                return null;
               }}
             />
           )}
@@ -87,6 +106,11 @@ export default function CalendarPage() {
             <LegendItem
               label="Other"
               colorClass={getTaskColorClasses("other")}
+            />
+
+            <LegendItem
+              label="Overdue Assignment"
+              colorClass={getTaskColorClasses("Overdue")}
             />
           </ul>
         </div>
@@ -120,10 +144,9 @@ export default function CalendarPage() {
                     </span>
 
                     <span
-                      className={`
-                        px-2 py-0.5 rounded-full text-xs font-semibold
-                        ${getTaskColorClasses(task.type)}
-                      `}
+                      className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getTaskColorClasses(
+                        task.type
+                      )}`}
                     >
                       {task.type}
                     </span>
@@ -135,7 +158,6 @@ export default function CalendarPage() {
         </div>
       )}
 
-      {/* Selected date */}
       <p className="mt-4 italic text-gray-700 dark:text-gray-400">
         Selected date:{" "}
         <span className="font-semibold text-black dark:text-white">
@@ -145,6 +167,8 @@ export default function CalendarPage() {
     </main>
   );
 }
+
+/* ---------- Legend Item ---------- */
 function LegendItem({
   label,
   colorClass,
@@ -154,12 +178,7 @@ function LegendItem({
 }) {
   return (
     <li className="flex items-center gap-3">
-      <span
-        className={`
-          h-4 w-4 rounded-full
-          ${colorClass}
-        `}
-      />
+      <span className={`h-4 w-4 rounded-full ${colorClass}`} />
       <span className="italic text-gray-700 dark:text-gray-400">{label}</span>
     </li>
   );
