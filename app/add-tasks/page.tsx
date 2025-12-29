@@ -10,6 +10,7 @@ export default function AddTasksPage() {
 
   /* -------------------- LOCAL UI STATE -------------------- */
   const [showModal, setShowModal] = useState(false);
+  const [removingTaskIds, setRemovingTaskIds] = useState<number[]>([]);
 
   /* -------------------- SORT -------------------- */
   const sortedTasks = [...tasks].sort(
@@ -39,56 +40,78 @@ export default function AddTasksPage() {
       {/* Task List */}
       <div className="mt-6 space-y-4">
         {sortedTasks
-          .filter((task) => !task.completed) // ✅ KEY FIX
-          .map((task) => (
-            <div
-              key={task.id}
-              className="
-                flex items-center justify-between
-                p-4 rounded-lg
-                bg-gray-100 dark:bg-gray-800
-                transition-all duration-300
-              "
-            >
-              {/* Task info */}
-              <div>
-                <p className="font-semibold text-black dark:text-white">
-                  {task.title}
-                </p>
+          .filter((task) => !task.completed) // hide completed tasks
+          .map((task) => {
+            const isRemoving = removingTaskIds.includes(task.id);
 
-                <p className="mt-1 italic text-sm text-gray-700 dark:text-gray-400">
-                  {new Date(task.deadline).toDateString()} • {task.type}
-                </p>
+            return (
+              <div
+                key={task.id}
+                className={`
+                  flex items-center justify-between
+                  p-4 rounded-lg
+                  bg-gray-100 dark:bg-gray-800
+                  transition-all duration-300
+                  ${isRemoving ? "opacity-0 scale-95" : "opacity-100 scale-100"}
+                `}
+              >
+                {/* Task info */}
+                <div>
+                  <p
+                    className={`
+                      font-semibold transition-all duration-300
+                      ${
+                        isRemoving
+                          ? "line-through text-gray-500 dark:text-gray-400"
+                          : "text-black dark:text-white"
+                      }
+                    `}
+                  >
+                    {task.title}
+                  </p>
+
+                  <p className="mt-1 italic text-sm text-gray-700 dark:text-gray-400">
+                    {new Date(task.deadline).toDateString()} • {task.type}
+                  </p>
+                </div>
+
+                {/* Right-side controls */}
+                <div className="flex items-center gap-3">
+                  {/* Tickbox */}
+                  <input
+                    type="checkbox"
+                    checked={false}
+                    onChange={() => {
+                      // start animation
+                      setRemovingTaskIds((prev) => [...prev, task.id]);
+
+                      // mark completed AFTER animation
+                      setTimeout(() => {
+                        completeTask(task.id);
+                      }, 300);
+                    }}
+                    className="h-5 w-5 cursor-pointer"
+                    aria-label="Mark task completed"
+                  />
+
+                  {/* Minus button */}
+                  <button
+                    onClick={() => removeTask(task.id)}
+                    className="
+                      h-6 w-6 flex items-center justify-center
+                      rounded-full
+                      bg-red-100 hover:bg-red-200
+                      text-red-600 font-bold
+                      cursor-pointer
+                    "
+                    aria-label="Remove task"
+                  >
+                    −
+                  </button>
+                </div>
               </div>
-
-              {/* Right-side controls */}
-              <div className="flex items-center gap-3">
-                {/* Tickbox */}
-                <input
-                  type="checkbox"
-                  checked={task.completed}
-                  onChange={() => completeTask(task.id)}
-                  className="h-5 w-5 cursor-pointer"
-                  aria-label="Mark task completed"
-                />
-
-                {/* Minus button */}
-                <button
-                  onClick={() => removeTask(task.id)}
-                  className="
-                    h-6 w-6 flex items-center justify-center
-                    rounded-full
-                    bg-red-100 hover:bg-red-200
-                    text-red-600 font-bold
-                    cursor-pointer
-                  "
-                  aria-label="Remove task"
-                >
-                  −
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
       </div>
 
       {/* Modal */}
