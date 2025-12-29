@@ -27,68 +27,74 @@ export default function ProfilePage() {
   const pendingTasks = totalTasks - completedTasks;
 
   return (
-    <main className="p-6 min-h-screen bg-white dark:bg-gray-900">
-      <h1 className="text-2xl font-bold text-black dark:text-white">Profile</h1>
+    <main className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+      <div className="w-full max-w-md px-6 text-center">
+        {/* Profile Picture */}
+        <div className="mx-auto mb-4 h-28 w-28 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-4xl font-bold text-gray-700 dark:text-gray-300">
+          👤
+        </div>
 
-      {loading ? (
-        <p className="mt-4 italic text-gray-700 dark:text-gray-400">
-          Loading profile…
-        </p>
-      ) : (
-        <>
-          {/* Email */}
+        <h1 className="text-2xl font-bold text-black dark:text-white">
+          Profile
+        </h1>
+
+        {loading ? (
           <p className="mt-4 italic text-gray-700 dark:text-gray-400">
-            Logged in as{" "}
-            <span className="font-semibold text-black dark:text-white">
-              {email}
-            </span>
+            Loading profile…
           </p>
+        ) : (
+          <>
+            {/* Email */}
+            <p className="mt-2 italic text-gray-700 dark:text-gray-400">
+              Signed in as
+            </p>
+            <p className="font-semibold text-black dark:text-white break-all">
+              {email}
+            </p>
 
-          {/* Stats */}
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {/* Total Tasks */}
-            <div className="rounded-lg p-4 bg-gray-100 dark:bg-gray-800">
-              <p className="text-sm italic text-gray-700 dark:text-gray-400">
-                Total Tasks
-              </p>
-              <p className="mt-2 text-3xl font-bold text-black dark:text-white">
-                {totalTasks}
-              </p>
+            {/* Stats */}
+            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex-1 rounded-lg p-4 bg-gray-100 dark:bg-gray-800">
+                <p className="text-sm italic text-gray-700 dark:text-gray-400">
+                  Total
+                </p>
+                <p className="mt-1 text-3xl font-bold text-black dark:text-white">
+                  {totalTasks}
+                </p>
+              </div>
+
+              <div className="flex-1 rounded-lg p-4 bg-gray-100 dark:bg-gray-800">
+                <p className="text-sm italic text-gray-700 dark:text-gray-400">
+                  Completed
+                </p>
+                <p className="mt-1 text-3xl font-bold text-green-600">
+                  {completedTasks}
+                </p>
+              </div>
+
+              <div className="flex-1 rounded-lg p-4 bg-gray-100 dark:bg-gray-800">
+                <p className="text-sm italic text-gray-700 dark:text-gray-400">
+                  Pending
+                </p>
+                <p className="mt-1 text-3xl font-bold text-orange-500">
+                  {pendingTasks}
+                </p>
+              </div>
             </div>
 
-            {/* Completed Tasks */}
-            <div className="rounded-lg p-4 bg-gray-100 dark:bg-gray-800">
-              <p className="text-sm italic text-gray-700 dark:text-gray-400">
-                Completed
-              </p>
-              <p className="mt-2 text-3xl font-bold text-green-600">
-                {completedTasks}
-              </p>
-            </div>
-
-            {/* Pending Tasks */}
-            <div className="rounded-lg p-4 bg-gray-100 dark:bg-gray-800">
-              <p className="text-sm italic text-gray-700 dark:text-gray-400">
-                Pending
-              </p>
-              <p className="mt-2 text-3xl font-bold text-orange-500">
-                {pendingTasks}
-              </p>
-            </div>
-          </div>
-
-          {/* Logout */}
-          <button
-            onClick={async () => {
-              await supabase.auth.signOut();
-              location.reload();
-            }}
-            className="mt-8 px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white cursor-pointer"
-          >
-            Logout
-          </button>
-        </>
-      )}
+            {/* Logout */}
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut();
+                location.reload();
+              }}
+              className="mt-8 px-6 py-2 rounded bg-red-600 hover:bg-red-700 text-white cursor-pointer"
+            >
+              Logout
+            </button>
+          </>
+        )}
+      </div>
     </main>
   );
 }
