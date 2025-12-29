@@ -7,23 +7,25 @@ import { useTasks, getTaskColorClasses } from "../../context/TaskContext";
 
 export default function CalendarPage() {
   const { tasks } = useTasks();
-
   const [value, setValue] = useState<Date | null>(null);
 
-  // Prevent hydration mismatch
+  /* Prevent hydration mismatch */
   useEffect(() => {
     setValue(new Date());
   }, []);
 
-  // Local-safe date formatter
+  /* Local-safe date formatter */
   const formatDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
   };
 
-  const todayStr = formatDate(new Date());
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = formatDate(today);
+
   const selectedDateStr = value ? formatDate(value) : null;
 
   const tasksForSelectedDate = selectedDateStr
@@ -52,21 +54,23 @@ export default function CalendarPage() {
                 if (view !== "month") return null;
 
                 const dateStr = formatDate(date);
-
                 const taskForDay = tasks.find(
                   (task) => task.deadline === dateStr && !task.completed
                 );
 
-                /* 1️⃣ Overdue assignment (highest priority) */
+                const tileDate = new Date(dateStr);
+                tileDate.setHours(0, 0, 0, 0);
+
+                /* 1️⃣ Overdue assignment (dark red) */
                 if (
                   taskForDay &&
                   taskForDay.type === "assignment" &&
-                  todayStr > taskForDay.deadline
+                  tileDate < today
                 ) {
                   return "overdue-assignment";
                 }
 
-                /* 2️⃣ Today highlight (even if no task) */
+                /* 2️⃣ Today highlight (sky blue) */
                 if (dateStr === todayStr) {
                   return "today-highlight";
                 }
@@ -107,11 +111,11 @@ export default function CalendarPage() {
               label="Other"
               colorClass={getTaskColorClasses("other")}
             />
-
             <LegendItem
               label="Overdue Assignment"
-              colorClass={getTaskColorClasses("Overdue")}
+              colorClass="overdue-assignment"
             />
+            <LegendItem label="Today" colorClass="today-highlight" />
           </ul>
         </div>
       </div>

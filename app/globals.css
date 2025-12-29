@@ -130,3 +130,14 @@ body {
   font-weight: bold;
 }
 
+/* Today = sky blue */
+.today-highlight {
+  background-color: #38bdf8 !important;
+  color: black !important;
+}
+
+/* Overdue assignment = dark red */
+.overdue-assignment {
+  background-color: #7f1d1d !important;
+  color: white !important;
+}
