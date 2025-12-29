@@ -1,88 +1,92 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabaseClient";
-import LoggedInProfile from "../../components/Profile/LoggedInProfile";
+import { useTasks } from "../../context/TaskContext";
 
 export default function ProfilePage() {
-  const [status, setStatus] = useState<"loading" | "logged-in" | "logged-out">(
-    "loading"
-  );
+  const { tasks } = useTasks();
+
   const [email, setEmail] = useState<string | null>(null);
-  const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
-  const [joinedAt, setJoinedAt] = useState<string | null>(null);
-
+  /* ---------------- AUTH CHECK ---------------- */
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const { data } = await supabase.auth.getUser();
-
-        if (data.user) {
-          setEmail(data.user.email);
-          setJoinedAt(data.user.created_at);
-          setStatus("logged-in");
-        } else {
-          setStatus("logged-out");
-        }
-      } catch {
-        setStatus("logged-out");
-      }
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setEmail(data.user?.email ?? null);
+      setLoading(false);
     };
 
-    checkUser();
+    getUser();
   }, []);
+
+  /* ---------------- TASK COUNTS ---------------- */
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter((t) => t.completed).length;
+  const pendingTasks = totalTasks - completedTasks;
 
   return (
     <main className="p-6 min-h-screen bg-white dark:bg-gray-900">
       <h1 className="text-2xl font-bold text-black dark:text-white">Profile</h1>
 
-      {/* Loading */}
-      {status === "loading" && (
+      {loading ? (
         <p className="mt-4 italic text-gray-700 dark:text-gray-400">
-          Checking authentication…
+          Loading profile…
         </p>
-      )}
-
-      {/* Logged OUT view */}
-      {status === "logged-out" && (
+      ) : (
         <>
+          {/* Email */}
           <p className="mt-4 italic text-gray-700 dark:text-gray-400">
-            Welcome! Please sign in or create an account.
+            Logged in as{" "}
+            <span className="font-semibold text-black dark:text-white">
+              {email}
+            </span>
           </p>
 
-          <div className="mt-6 flex gap-4">
-            <button
-              onClick={() => router.push("/profile/signin")}
-              className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Sign In
-            </button>
+          {/* Stats */}
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            {/* Total Tasks */}
+            <div className="rounded-lg p-4 bg-gray-100 dark:bg-gray-800">
+              <p className="text-sm italic text-gray-700 dark:text-gray-400">
+                Total Tasks
+              </p>
+              <p className="mt-2 text-3xl font-bold text-black dark:text-white">
+                {totalTasks}
+              </p>
+            </div>
 
-            <button
-              onClick={() => router.push("/profile/signup")}
-              className="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white"
-            >
-              Sign Up
-            </button>
+            {/* Completed Tasks */}
+            <div className="rounded-lg p-4 bg-gray-100 dark:bg-gray-800">
+              <p className="text-sm italic text-gray-700 dark:text-gray-400">
+                Completed
+              </p>
+              <p className="mt-2 text-3xl font-bold text-green-600">
+                {completedTasks}
+              </p>
+            </div>
+
+            {/* Pending Tasks */}
+            <div className="rounded-lg p-4 bg-gray-100 dark:bg-gray-800">
+              <p className="text-sm italic text-gray-700 dark:text-gray-400">
+                Pending
+              </p>
+              <p className="mt-2 text-3xl font-bold text-orange-500">
+                {pendingTasks}
+              </p>
+            </div>
           </div>
-        </>
-      )}
 
-      {/* Logged IN view */}
-      {status === "logged-in" && (
-        <>
-          <LoggedInProfile
-            email={email}
-            joinedAt={joinedAt}
-            onLogout={async () => {
+          {/* Logout */}
+          <button
+            onClick={async () => {
               await supabase.auth.signOut();
-              setStatus("logged-out");
-              setEmail(null);
-              setJoinedAt(null);
+              location.reload();
             }}
-          />
+            className="mt-8 px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white cursor-pointer"
+          >
+            Logout
+          </button>
         </>
       )}
     </main>

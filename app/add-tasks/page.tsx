@@ -10,12 +10,29 @@ export default function AddTasksPage() {
 
   /* -------------------- LOCAL UI STATE -------------------- */
   const [showModal, setShowModal] = useState(false);
-  const [removingTaskIds, setRemovingTaskIds] = useState<number[]>([]);
+  const [animatingIds, setAnimatingIds] = useState<string[]>([]);
 
-  /* -------------------- SORT -------------------- */
+  /* -------------------- SORT (BY DEADLINE) -------------------- */
   const sortedTasks = [...tasks].sort(
     (a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
   );
+
+  /* -------------------- COMPLETE WITH ANIMATION -------------------- */
+  const handleComplete = (taskId: string) => {
+    // start animation
+    setAnimatingIds((prev) => [...prev, taskId]);
+
+    // update DB AFTER animation
+    setTimeout(() => {
+      completeTask(taskId);
+      setAnimatingIds((prev) => prev.filter((id) => id !== taskId));
+    }, 300); // must match CSS duration
+  };
+
+  /* -------------------- REMOVE (NO ANIMATION) -------------------- */
+  const handleRemove = (taskId: string) => {
+    removeTask(taskId);
+  };
 
   return (
     <main className="p-6 min-h-screen bg-white dark:bg-gray-900">
@@ -40,9 +57,9 @@ export default function AddTasksPage() {
       {/* Task List */}
       <div className="mt-6 space-y-4">
         {sortedTasks
-          .filter((task) => !task.completed) // hide completed tasks
+          .filter((task) => !task.completed)
           .map((task) => {
-            const isRemoving = removingTaskIds.includes(task.id);
+            const isAnimating = animatingIds.includes(task.id);
 
             return (
               <div
@@ -51,8 +68,10 @@ export default function AddTasksPage() {
                   flex items-center justify-between
                   p-4 rounded-lg
                   bg-gray-100 dark:bg-gray-800
-                  transition-all duration-300
-                  ${isRemoving ? "opacity-0 scale-95" : "opacity-100 scale-100"}
+                  transition-all duration-300 ease-in-out
+                  ${
+                    isAnimating ? "opacity-0 scale-95" : "opacity-100 scale-100"
+                  }
                 `}
               >
                 {/* Task info */}
@@ -61,7 +80,7 @@ export default function AddTasksPage() {
                     className={`
                       font-semibold transition-all duration-300
                       ${
-                        isRemoving
+                        isAnimating
                           ? "line-through text-gray-500 dark:text-gray-400"
                           : "text-black dark:text-white"
                       }
@@ -75,28 +94,20 @@ export default function AddTasksPage() {
                   </p>
                 </div>
 
-                {/* Right-side controls */}
+                {/* Controls */}
                 <div className="flex items-center gap-3">
-                  {/* Tickbox */}
+                  {/* Checkbox */}
                   <input
                     type="checkbox"
                     checked={false}
-                    onChange={() => {
-                      // start animation
-                      setRemovingTaskIds((prev) => [...prev, task.id]);
-
-                      // mark completed AFTER animation
-                      setTimeout(() => {
-                        completeTask(task.id);
-                      }, 300);
-                    }}
+                    onChange={() => handleComplete(task.id)}
                     className="h-5 w-5 cursor-pointer"
                     aria-label="Mark task completed"
                   />
 
-                  {/* Minus button */}
+                  {/* Remove button */}
                   <button
-                    onClick={() => removeTask(task.id)}
+                    onClick={() => handleRemove(task.id)}
                     className="
                       h-6 w-6 flex items-center justify-center
                       rounded-full
@@ -114,7 +125,7 @@ export default function AddTasksPage() {
           })}
       </div>
 
-      {/* Modal */}
+      {/* Add Task Modal */}
       {showModal && (
         <AddTaskModal onClose={() => setShowModal(false)} onSave={addTask} />
       )}

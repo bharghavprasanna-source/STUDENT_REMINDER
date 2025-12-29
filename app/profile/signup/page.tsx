@@ -48,7 +48,9 @@ export default function SignUpPage() {
           const { error } = await signUp(email, password);
           if (error) alert(error.message);
           else {
-            alert("Signup successful! Please sign in.");
+            alert(
+              "Signup successful!  Please verify your email and then sign in."
+            );
             location.href = "/profile/signin";
           }
         }}

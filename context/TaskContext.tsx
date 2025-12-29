@@ -1,9 +1,13 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
+
+/* ---------------- Types ---------------- */
 
 export type Task = {
-  id: number;
+  id: string;
+  user_id: string;
   title: string;
   deadline: string;
   type: string;
@@ -12,60 +16,116 @@ export type Task = {
 
 type TaskContextType = {
   tasks: Task[];
-  addTask: (task: Omit<Task, "id" | "completed">) => void;
-  removeTask: (id: number) => void;
-  completeTask: (id: number) => void;
+  loading: boolean;
+  addTask: (task: {
+    title: string;
+    deadline: string;
+    type: string;
+  }) => Promise<void>;
+  completeTask: (id: string) => Promise<void>;
+  removeTask: (id: string) => Promise<void>;
 };
 
 const TaskContext = createContext<TaskContextType | null>(null);
 
+/* ---------------- Provider ---------------- */
+
 export function TaskProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // 🔹 Load from localStorage (on first load)
-  useEffect(() => {
-    const storedTasks = localStorage.getItem("tasks");
-    if (storedTasks) {
-      setTasks(JSON.parse(storedTasks));
+  /* ---------------- Fetch Tasks ---------------- */
+  const fetchTasks = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .order("deadline", { ascending: true });
+
+    if (!error && data) {
+      setTasks(data);
     }
+
+    setLoading(false);
+  };
+
+  /* ---------------- Auth Listener ---------------- */
+  useEffect(() => {
+    fetchTasks();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
+      fetchTasks();
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  // 🔹 Save to localStorage (on every change)
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+  /* ---------------- Add Task ---------------- */
+  const addTask = async (task: {
+    title: string;
+    deadline: string;
+    type: string;
+  }) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  const addTask = (task: Omit<Task, "id" | "completed">) => {
-    setTasks((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        ...task,
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .insert({
+        title: task.title,
+        deadline: task.deadline,
+        type: task.type,
         completed: false,
-      },
-    ]);
+        user_id: user.id,
+      })
+      .select()
+      .single(); // 🔥 IMPORTANT
+
+    if (error) {
+      console.error("Add task error:", error);
+      return;
+    }
+
+    // ✅ UPDATE LOCAL STATE IMMEDIATELY
+    setTasks((prev) => [...prev, data]);
   };
 
-  const removeTask = (id: number) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id));
+  /* ---------------- Complete Task ---------------- */
+  const completeTask = async (id: string) => {
+    await supabase.from("tasks").update({ completed: true }).eq("id", id);
+    fetchTasks();
   };
 
-  const completeTask = (id: number) => {
-    setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, completed: true } : task))
-    );
-
-    setTimeout(() => {
-      setTasks((prev) => prev.filter((task) => task.id !== id));
-    }, 350);
+  /* ---------------- Remove Task ---------------- */
+  const removeTask = async (id: string) => {
+    await supabase.from("tasks").delete().eq("id", id);
+    fetchTasks();
   };
 
   return (
-    <TaskContext.Provider value={{ tasks, addTask, removeTask, completeTask }}>
+    <TaskContext.Provider
+      value={{
+        tasks,
+        loading,
+        addTask,
+        completeTask,
+        removeTask,
+      }}
+    >
       {children}
     </TaskContext.Provider>
   );
 }
+
+/* ---------------- Hook ---------------- */
 
 export function useTasks() {
   const context = useContext(TaskContext);
