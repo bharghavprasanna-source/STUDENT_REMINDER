@@ -1,21 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
 import { useTasks } from "../../context/TaskContext";
 import { supabase } from "@/lib/supabaseClient";
-
-const handleLogout = async () => {
-  const { error } = await supabase.auth.signOut();
-
-  if (error) {
-    console.error("Logout error:", error.message);
-    return;
-  }
-
-  window.location.href = "/login"; // force redirect
-};
-
 
 export default function ProfilePage() {
   const { tasks } = useTasks();
@@ -26,13 +13,31 @@ export default function ProfilePage() {
   /* ---------------- AUTH CHECK ---------------- */
   useEffect(() => {
     const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error("Auth fetch error:", error.message);
+      }
+
       setEmail(data.user?.email ?? null);
       setLoading(false);
     };
 
     getUser();
   }, []);
+
+  /* ---------------- LOGOUT ---------------- */
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("Logout error:", error.message);
+      return;
+    }
+
+    // hard redirect to clear all state
+    window.location.replace("/login");
+  };
 
   /* ---------------- TASK COUNTS ---------------- */
   const totalTasks = tasks.length;
@@ -97,12 +102,11 @@ export default function ProfilePage() {
 
             {/* Logout */}
             <button
-  onClick={handleLogout}
-  className="px-4 py-2 rounded bg-red-600 text-white"
->
-  Logout
-</button>
-
+              onClick={handleLogout}
+              className="mt-8 w-full px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold"
+            >
+              Logout
+            </button>
           </>
         )}
       </div>
