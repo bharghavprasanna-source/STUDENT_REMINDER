@@ -3,6 +3,19 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useTasks } from "../../context/TaskContext";
+import { supabase } from "@/lib/supabaseClient";
+
+const handleLogout = async () => {
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    console.error("Logout error:", error.message);
+    return;
+  }
+
+  window.location.href = "/login"; // force redirect
+};
+
 
 export default function ProfilePage() {
   const { tasks } = useTasks();
@@ -84,14 +97,12 @@ export default function ProfilePage() {
 
             {/* Logout */}
             <button
-              onClick={async () => {
-                await supabase.auth.signOut();
-                location.reload();
-              }}
-              className="mt-8 px-6 py-2 rounded bg-red-600 hover:bg-red-700 text-white cursor-pointer"
-            >
-              Logout
-            </button>
+  onClick={handleLogout}
+  className="px-4 py-2 rounded bg-red-600 text-white"
+>
+  Logout
+</button>
+
           </>
         )}
       </div>
