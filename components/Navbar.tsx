@@ -65,7 +65,7 @@ export default function Navbar() {
       </div>
 
       {/* Right side controls */}
-      <div className="ml-auto flex h-full items-center pl-6">
+      <div className="ml-auto flex h-full items-center pl-6 hidden">
         <ThemeToggle />
       </div>
     </nav>
