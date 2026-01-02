@@ -141,3 +141,46 @@ body {
   background-color: #7f1d1d !important;
   color: white !important;
 }
+
+/* ---------------- React Calendar Dark Theme Fix ---------------- */
+
+.react-calendar {
+  background-color: #0f172a !important; /* dark background */
+  color: #e5e7eb;
+  border-radius: 12px;
+  border: none;
+  padding: 12px;
+}
+
+.react-calendar__navigation button {
+  color: #e5e7eb;
+}
+
+.react-calendar__month-view__weekdays {
+  color: #94a3b8;
+}
+
+.react-calendar__tile {
+  background: transparent;
+  color: #e5e7eb;
+  border-radius: 8px;
+}
+
+.react-calendar__tile:hover {
+  background: #1e293b;
+}
+
+.react-calendar__tile--now {
+  background: #0284c7 !important; /* Today */
+  color: white !important;
+}
+
+.react-calendar__tile--active {
+  background: #2563eb !important;
+  color: white !important;
+}
+
+/* Disable default white background */
+.react-calendar button {
+  background: transparent;
+}
