@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 /* ---------------- Types ---------------- */
 
@@ -33,14 +34,26 @@ const TaskContext = createContext<TaskContextType | null>(null);
 export function TaskProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   /* ---------------- Fetch Tasks ---------------- */
   const fetchTasks = async () => {
     setLoading(true);
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setTasks([]);
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from("tasks")
       .select("*")
+      .eq("user_id", user.id) // ✅ IMPORTANT FIX
       .order("deadline", { ascending: true });
 
     if (!error && data) {
@@ -60,9 +73,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       fetchTasks();
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   /* ---------------- Add Task ---------------- */
@@ -75,7 +86,12 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user) return;
+    // 🚨 Not logged in
+    if (!user) {
+      alert("Please sign up or log in to add tasks.");
+      router.push("/login");
+      return;
+    }
 
     const { data, error } = await supabase
       .from("tasks")
@@ -87,27 +103,33 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
         user_id: user.id,
       })
       .select()
-      .single(); // 🔥 IMPORTANT
+      .single();
 
     if (error) {
-      console.error("Add task error:", error);
+      console.error("Add task error:", error.message);
       return;
     }
 
-    // ✅ UPDATE LOCAL STATE IMMEDIATELY
+    // ✅ No flicker – update local state
     setTasks((prev) => [...prev, data]);
   };
 
   /* ---------------- Complete Task ---------------- */
   const completeTask = async (id: string) => {
     await supabase.from("tasks").update({ completed: true }).eq("id", id);
-    fetchTasks();
+
+    // ✅ Local update (no flicker)
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, completed: true } : t))
+    );
   };
 
   /* ---------------- Remove Task ---------------- */
   const removeTask = async (id: string) => {
     await supabase.from("tasks").delete().eq("id", id);
-    fetchTasks();
+
+    // ✅ Local update
+    setTasks((prev) => prev.filter((t) => t.id !== id));
   };
 
   return (
@@ -134,6 +156,8 @@ export function useTasks() {
   }
   return context;
 }
+
+/* ---------------- Colors ---------------- */
 
 export const getTaskColorClasses = (type: string) => {
   switch (type) {
