@@ -184,3 +184,7 @@ body {
 .react-calendar button {
   background: transparent;
 }
+/* Remove default weekend red color */
+.react-calendar__month-view__days__day--weekend {
+  color: #e5e7eb !important; /* same as normal text */
+}
