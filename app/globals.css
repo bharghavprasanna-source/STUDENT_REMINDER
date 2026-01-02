@@ -188,3 +188,9 @@ body {
 .react-calendar__month-view__days__day--weekend {
   color: #e5e7eb !important; /* same as normal text */
 }
+.react-calendar__month-view__days__day--weekend {
+  color: #94a3b8 !important; /* muted gray */
+}
+.react-calendar__tile--weekend {
+  all: unset;
+}
